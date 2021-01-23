@@ -10,7 +10,7 @@ object Client {
     @JvmStatic
     fun main(args: Array<String>) {
         try {
-            Socket("localhost", PORT).use { socket ->
+            Socket("172.16.172.25", PORT).use { socket ->
 //                val consoleReader = BufferedReader(InputStreamReader(System.`in`))
                 val reader = BufferedReader(InputStreamReader(socket.getInputStream()))
                 val writer = BufferedWriter(OutputStreamWriter(socket.getOutputStream()))
