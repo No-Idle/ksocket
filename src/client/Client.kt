@@ -15,13 +15,19 @@ object Client {
                 val reader = BufferedReader(InputStreamReader(socket.getInputStream()))
                 val writer = BufferedWriter(OutputStreamWriter(socket.getOutputStream()))
 
+                var id = "0"
                 while (true) {
-//                    writer.write("$cmd\n")
-//                    writer.flush()
-
                     Thread.sleep(100)
                     while (reader.ready()) {
-                        println(reader.readLine())
+                        val cmd = Command(reader.readLine()!!.split(" "))
+                        when (cmd.data) {
+                            "started" -> id = cmd.id
+                            "won" -> println("${cmd.id} won ${if (cmd.id == id) "YES!!!" else "NO :-("}")
+                            else -> if (cmd.id == id && cmd.data != "1") {
+                                writer.write("stop\n")
+                                writer.flush()
+                            }
+                        }
                     }
                 }
             }
