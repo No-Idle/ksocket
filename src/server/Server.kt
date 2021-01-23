@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger
 object Server {
     private const val PORT = 8080
     private const val PLAYER_COUNT = 2
-    private const val WIN_SCORE = 1000
+    private const val WIN_SCORE = 100
 
     private var id = AtomicInteger()
 
@@ -28,12 +28,13 @@ object Server {
                     val socket = server.accept()
                     synchronized(sockets) {
                         sockets[id.incrementAndGet()] = socket
+                        println("Player $id joined the room")
                     }
                 }
 
                 val players = sockets.map { (k, v) -> k to v }.shuffled().map { (id, socket) -> Player(id, socket) }.toMutableList()
                 notifyAll(players) {player -> player.notifyStart()}
-
+                println("The game started with players ${players.map { it.id }}")
                 var idx = 0
                 while (players.isNotEmpty() && players.all { it.score < WIN_SCORE }) {
                     val currentPlayer = players[idx++ % players.size]
@@ -58,8 +59,8 @@ object Server {
                         }
                     } while (response == "play")
                     currentPlayer.score += currentPlayer.current
+                    println("player ${currentPlayer.id} got ${currentPlayer.current}")
                 }
-
                 val winner = players.find { it.score >= WIN_SCORE }
                 if (winner != null) {
                     notifyAll(players) { player -> player.notifyWon(winner.id) }
